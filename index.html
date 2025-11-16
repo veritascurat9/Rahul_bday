@@ -500,6 +500,34 @@
       text-align: center;
     }
 
+#touch-controls {
+  margin-top: 8px;
+  display: none; /* hidden by default, shown in mobile media query */
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.ctrl-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
+  background: #7c3aed;
+  color: #fff;
+  font-size: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+
+.ctrl-btn:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.ctrl-label {
+  font-size: 12px;
+  color: #555;
+}
     /* Mobile-friendly scaling */
     @media (max-width: 900px) {
       body {
@@ -514,6 +542,9 @@
       #instructions {
         font-size: 11px;
       }
+       #touch-controls {
+    display: flex;
+  }
     }
   </style>
 </head>
@@ -626,6 +657,11 @@
 
   <div id="instructions">
     Use ◀ ▶ arrow keys to move · Follow the path · Collect the blessings · Then visit Krishna 💛
+  </div>
+  <div id="touch-controls">
+    <button class="ctrl-btn" data-dir="left">◀</button>
+    <span class="ctrl-label">Tap to move</span>
+    <button class="ctrl-btn" data-dir="right">▶</button>
   </div>
 
   <script>
@@ -888,6 +924,17 @@
         birthdayPopupPending = false;
       }
     });
+
+    const ctrlButtons = document.querySelectorAll(".ctrl-btn");
+
+ctrlButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const dir = btn.dataset.dir; // "left" or "right"
+    startMusicOnce();
+    movePlayer(dir);
+  });
+});
+
 
     updateCounter();
   </script>
