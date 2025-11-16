@@ -615,6 +615,7 @@
     const popupClose = document.getElementById("popup-close");
 
     const totalMilestones = milestones.length;
+    let birthdayPopupShown = false;
     let collected = 0;
     const speed = 14;
     let talkingToKrishna = false;
@@ -686,6 +687,8 @@
           setTimeout(() => m.remove(), 500);
 
           if (collected === totalMilestones) {
+            birthdayPopupShown = true; // Mark it immediately
+
 setTimeout(() => {
     showBirthdayPopup();
   }, 5200);          }
@@ -779,6 +782,9 @@ setTimeout(() => {
     }
 
     function checkKrishnaInteraction() {
+    if (birthdayPopupShown && !birthdayPopup.classList.contains("visible")) {
+  return;
+}
       if (isTouching(player, krishnaArea, -10)) {
         krishnaArea.classList.add("glow-on");
 
@@ -835,8 +841,11 @@ setTimeout(() => {
 
     if (popupClose) {
       popupClose.addEventListener("click", () => {
-        birthdayPopup.classList.remove("visible");
-      });
+  birthdayPopup.classList.remove("visible");
+  // After closing popup, Krishna can finally give final messages
+  birthdayPopupShown = false; 
+});
+
     }
 
     birthdayPopup.addEventListener("click", (e) => {
