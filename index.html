@@ -14,21 +14,31 @@
     body {
       background: radial-gradient(circle at top, #ffe9f7, #f3f4ff);
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
+      padding: 16px;
       color: #222;
     }
 
+    /* Wrapper that lets us center + scale the game */
+    #game-shell {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
     #game-wrapper {
-      width: 1100px;   /* was 900px */
-  height: 650px;   /* was 520px */
+      width: 1100px;
+      height: 650px;
       background: linear-gradient(to top, #d6f5ff 0%, #ffffff 45%, #fef3ff 100%);
       border-radius: 24px;
       box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
       overflow: hidden;
       position: relative;
       border: 2px solid rgba(255, 255, 255, 0.6);
+      transform-origin: top center;
     }
 
     #hud {
@@ -71,18 +81,6 @@
     #counter span.icon {
       font-size: 18px;
     }
-
-   #instructions {
-  margin-top: 12px;
-  font-size: 13px;
-  color: #555;
-  background: rgba(255, 255, 255, 0.6);
-  padding: 6px 14px;
-  border-radius: 12px;
-  width: fit-content;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-}
-
 
     #game-area {
       position: absolute;
@@ -171,13 +169,13 @@
       opacity: 0.9;
     }
     .path-1 { left: 90px;  bottom: 135px; }
-    .path-2 { left: 200px; bottom: 155px; }
-    .path-3 { left: 315px; bottom: 140px; }
-    .path-4 { left: 430px; bottom: 160px; }
-    .path-5 { left: 550px; bottom: 145px; }
-    .path-6 { left: 670px; bottom: 155px; }
+    .path-2 { left: 210px; bottom: 155px; }
+    .path-3 { left: 330px; bottom: 140px; }
+    .path-4 { left: 460px; bottom: 160px; }
+    .path-5 { left: 600px; bottom: 145px; }
+    .path-6 { left: 740px; bottom: 155px; }
 
-    /* RAHUL: single chibi PNG, side-facing */
+    /* Rahul: single chibi PNG, side-facing */
     #player {
       position: absolute;
       width: 110px;
@@ -247,7 +245,7 @@
       width: 140px;
       height: 180px;
       bottom: 140px;
-      left: 120px;            /* starts near the beginning */
+      left: 120px;   /* starts near beginning */
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -364,7 +362,7 @@
     @keyframes toast-pop {
       0%   { opacity: 0; transform: translate(-50%, 20px); }
       15%  { opacity: 1; transform: translate(-50%, 0); }
-      70%  { opacity: 1; transform: translate(-50%, 0); }
+      80%  { opacity: 1; transform: translate(-50%, 0); }
       100% { opacity: 0; transform: translate(-50%, 20px); }
     }
 
@@ -485,120 +483,150 @@
         opacity: 0;
       }
     }
+
+    /* Instructions outside the box */
+    #instructions {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #555;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 6px 14px;
+      border-radius: 12px;
+      width: fit-content;
+      max-width: 100%;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    /* Mobile-friendly scaling */
+    @media (max-width: 900px) {
+      body {
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+
+      #game-wrapper {
+        transform: scale(calc(100vw / 1100));
+      }
+
+      #instructions {
+        font-size: 11px;
+      }
+    }
   </style>
 </head>
 <body>
   <!-- Soft background music -->
   <audio id="bg-music" src="assets/bg-music.mp3" loop></audio>
 
-  <div id="game-wrapper">
-    <div id="hud">
-      <div>
-        <div id="title">Rahul's Birthday Manifestation Quest</div>
-        <div id="subtitle">Help Rahul walk through his year, collect blessings and chat with Krishna.</div>
+  <div id="game-shell">
+    <div id="game-wrapper">
+      <div id="hud">
+        <div>
+          <div id="title">Rahul's Birthday Manifestation Quest</div>
+          <div id="subtitle">Help Rahul walk through his year, collect blessings and chat with Krishna.</div>
+        </div>
+        <div id="counter">
+          <span class="icon">✨</span>
+          <span id="counter-text">Milestones: 0 / 4</span>
+        </div>
       </div>
-      <div id="counter">
-        <span class="icon">✨</span>
-        <span id="counter-text">Milestones: 0 / 4</span>
+
+      <div id="music-hint">Press an arrow key to start the journey (and the music) 🎵</div>
+
+      <div id="dialog">
+        <div id="dialog-title">Krishna to Rahul</div>
+        <div id="dialog-text"></div>
+        <div id="dialog-small">Walk away to close this message.</div>
       </div>
-    </div>
 
-   
+      <div id="toast"></div>
 
-    <div id="music-hint">Press an arrow key to start the journey (and the music) 🎵</div>
-
-    <div id="dialog">
-      <div id="dialog-title">Krishna to Rahul</div>
-      <div id="dialog-text"></div>
-      <div id="dialog-small">Walk away to close this message.</div>
-    </div>
-
-    <div id="toast"></div>
-
-    <!-- Birthday popup overlay -->
-    <div id="birthday-popup">
-      <div id="birthday-card">
-        <div class="firework f1"></div>
-        <div class="firework f2"></div>
-        <div class="firework f3"></div>
-        <div class="firework f4"></div>
-        <h1>Happy Birthday, Rahul! 🎉</h1>
-        <p>
-          I hope this year feels softer, kinder and more “you” than any year before.<br/>
-          You deserve every quiet miracle, every loud joy, and every gentle, loving thing that finds you.
-        </p>
-        <div id="from-vignesh">Love, Vignesh 💗</div>
-        <button id="popup-close">Let's meet baby Krishna! ✨</button>
+      <!-- Birthday popup overlay -->
+      <div id="birthday-popup">
+        <div id="birthday-card">
+          <div class="firework f1"></div>
+          <div class="firework f2"></div>
+          <div class="firework f3"></div>
+          <div class="firework f4"></div>
+          <h1>Happy Birthday, Rahul! 🎉</h1>
+          <p>
+            I hope this year feels softer, kinder and more “you” than any year before.<br/>
+            You deserve every quiet miracle, every loud joy, and every gentle, loving thing that finds you.
+          </p>
+          <div id="from-vignesh">Love, Vignesh 💗</div>
+          <button id="popup-close">Okay, I’m crying a little, continue ✨</button>
+        </div>
       </div>
-    </div>
 
-    <div id="game-area">
-      <div class="cloud c1"></div>
-      <div class="cloud c2"></div>
-      <div class="cloud c3"></div>
+      <div id="game-area">
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="cloud c3"></div>
 
-      <!-- Falling petals -->
-      <div class="petal p1"></div>
-      <div class="petal p2"></div>
-      <div class="petal p3"></div>
-      <div class="petal p4"></div>
-      <div class="petal p5"></div>
-      <div class="petal p6"></div>
+        <!-- Falling petals -->
+        <div class="petal p1"></div>
+        <div class="petal p2"></div>
+        <div class="petal p3"></div>
+        <div class="petal p4"></div>
+        <div class="petal p5"></div>
+        <div class="petal p6"></div>
 
-      <div id="ground"></div>
+        <div id="ground"></div>
 
-      <!-- Winding path -->
-      <div class="path-tile path-1"></div>
-      <div class="path-tile path-2"></div>
-      <div class="path-tile path-3"></div>
-      <div class="path-tile path-4"></div>
-      <div class="path-tile path-5"></div>
-      <div class="path-tile path-6"></div>
+        <!-- Winding path -->
+        <div class="path-tile path-1"></div>
+        <div class="path-tile path-2"></div>
+        <div class="path-tile path-3"></div>
+        <div class="path-tile path-4"></div>
+        <div class="path-tile path-5"></div>
+        <div class="path-tile path-6"></div>
 
-      <!-- Rahul -->
-      <div id="player"></div>
+        <!-- Rahul -->
+        <div id="player"></div>
 
-      <!-- Milestones (staggered along the path) -->
-     <!-- Milestones (corrected positions) -->
-<div class="milestone"
-     data-id="0"
-     data-message="Rahul just collected: Quiet confidence. This year you walk like you deserve to be in every room you enter. 💫"
-     style="left: 260px; bottom: 210px;">
-  Quiet confidence
-</div>
+        <!-- Milestones (all after Krishna) -->
+        <div class="milestone"
+             data-id="0"
+             data-message="Rahul just collected: Quiet confidence. This year you walk like you deserve to be in every room you enter. 💫"
+             style="left: 260px; bottom: 210px;">
+          Quiet confidence
+        </div>
 
-<div class="milestone"
-     data-id="1"
-     data-message="Rahul just collected: Soft heart, strong boundaries. You stay gentle, but you stop shrinking for anyone. 🌸"
-     style="left: 380px; bottom: 165px;">
-  Heart &amp; boundaries
-</div>
+        <div class="milestone"
+             data-id="1"
+             data-message="Rahul just collected: Soft heart, strong boundaries. You stay gentle, but you stop shrinking for anyone. 🌸"
+             style="left: 380px; bottom: 165px;">
+          Heart &amp; boundaries
+        </div>
 
-<div class="milestone"
-     data-id="2"
-     data-message="Rahul just collected: Abundance mode. Money, opportunities and support start flowing to you with ease. 💸"
-     style="left: 520px; bottom: 215px;">
-  Abundance mode
-</div>
+        <div class="milestone"
+             data-id="2"
+             data-message="Rahul just collected: Abundance mode. Money, opportunities and support start flowing to you with ease. 💸"
+             style="left: 520px; bottom: 215px;">
+          Abundance mode
+        </div>
 
-<div class="milestone"
-     data-id="3"
-     data-message="Rahul just collected: Soul people. The right humans find you, see you and stay. 🤍"
-     style="left: 650px; bottom: 170px;">
-  Soul people
-</div>
+        <div class="milestone"
+             data-id="3"
+             data-message="Rahul just collected: Soul people. The right humans find you, see you and stay. 🤍"
+             style="left: 650px; bottom: 170px;">
+          Soul people
+        </div>
 
-
-      <!-- Krishna (starts near beginning, then flies to end) -->
-      <div id="krishna-area">
-        <div id="krishna-sprite"></div>
+        <!-- Krishna (starts near beginning, then flies to end) -->
+        <div id="krishna-area">
+          <div id="krishna-sprite"></div>
+        </div>
       </div>
     </div>
   </div>
 
-   <div id="instructions">
-      Use ◀ ▶ arrow keys · Walk along the glowing path to collect blessings · Then go stand with Krishna 💜
-    </div>
+  <div id="instructions">
+    Use ◀ ▶ arrow keys to move · Follow the path · Collect the blessings · Then visit Krishna 💛
+  </div>
 
   <script>
     const player = document.getElementById("player");
@@ -615,15 +643,17 @@
     const popupClose = document.getElementById("popup-close");
 
     const totalMilestones = milestones.length;
-    let birthdayPopupShown = false;
     let collected = 0;
     const speed = 14;
     let talkingToKrishna = false;
     let musicStarted = false;
-    let birthdayShown = false;
     let hasWelcomed = false;
     let krishnaAtEnd = false;
     let typingTimeoutId = null;
+
+    // Popup state flags - to avoid overlap with Krishna's final messages
+    let birthdayPopupPending = false;
+    let birthdayPopupVisible = false;
 
     function updateCounter() {
       counterText.textContent = `Milestones: ${collected} / ${totalMilestones}`;
@@ -637,7 +667,7 @@
       setTimeout(() => {
         toast.classList.remove("toast-show");
         toast.style.display = "none";
-      }, 5000); // stays longer
+      }, 5000); // 5 seconds
       toast.style.display = "inline-block";
     }
 
@@ -668,8 +698,8 @@
     }
 
     function showBirthdayPopup() {
-      if (birthdayShown) return;
-      birthdayShown = true;
+      if (birthdayPopupVisible) return;
+      birthdayPopupVisible = true;
       birthdayPopup.classList.add("visible");
     }
 
@@ -686,19 +716,20 @@
           m.style.opacity = "0";
           setTimeout(() => m.remove(), 500);
 
-          if (collected === totalMilestones) {
-            birthdayPopupShown = true; // Mark it immediately
-
-setTimeout(() => {
-    showBirthdayPopup();
-  }, 5200);          }
+          if (collected === totalMilestones && !birthdayPopupPending && !birthdayPopupVisible) {
+            // Delay popup so he can read the final toast, but block Krishna final until then
+            birthdayPopupPending = true;
+            setTimeout(() => {
+              showBirthdayPopup();
+            }, 5200);
+          }
         }
       });
     }
 
     const welcomeMessages = [
       "Rahul, you made it all the way here already. I’m so happy to see you. Take your time, walk the path, collect your blessings — I’ll be right here waiting for you. 💙",
-      "Come, Rahul. 2026 is going to be your year. Breathe, go at your own pace, and enjoy every small miracle on your way back to me."
+      "Come, Rahul. This is your year. Breathe, go at your own pace, and enjoy every small miracle on your way back to me."
     ];
 
     const preKrishnaMessages = [
@@ -716,11 +747,11 @@ setTimeout(() => {
       if (krishnaAtEnd) return;
       krishnaAtEnd = true;
       // Slide Krishna towards the right side
-      krishnaArea.style.left = "720px";
+      krishnaArea.style.left = "780px";
     }
 
     function typeWriter(text, element, callback) {
-      // Cancel any previous typing animation
+      // Cancel previous typing if any
       if (typingTimeoutId) {
         clearTimeout(typingTimeoutId);
         typingTimeoutId = null;
@@ -771,7 +802,6 @@ setTimeout(() => {
       if (!talkingToKrishna) return;
       talkingToKrishna = false;
 
-      // Stop any ongoing typing
       if (typingTimeoutId) {
         clearTimeout(typingTimeoutId);
         typingTimeoutId = null;
@@ -782,9 +812,13 @@ setTimeout(() => {
     }
 
     function checkKrishnaInteraction() {
-    if (birthdayPopupShown && !birthdayPopup.classList.contains("visible")) {
-  return;
-}
+      // If birthday popup is pending or visible, Krishna should stay quiet
+      if (birthdayPopupPending || birthdayPopupVisible) {
+        krishnaArea.classList.remove("glow-on");
+        closeKrishnaDialog();
+        return;
+      }
+
       if (isTouching(player, krishnaArea, -10)) {
         krishnaArea.classList.add("glow-on");
 
@@ -841,16 +875,17 @@ setTimeout(() => {
 
     if (popupClose) {
       popupClose.addEventListener("click", () => {
-  birthdayPopup.classList.remove("visible");
-  // After closing popup, Krishna can finally give final messages
-  birthdayPopupShown = false; 
-});
-
+        birthdayPopup.classList.remove("visible");
+        birthdayPopupVisible = false;
+        birthdayPopupPending = false;
+      });
     }
 
     birthdayPopup.addEventListener("click", (e) => {
       if (e.target === birthdayPopup) {
         birthdayPopup.classList.remove("visible");
+        birthdayPopupVisible = false;
+        birthdayPopupPending = false;
       }
     });
 
