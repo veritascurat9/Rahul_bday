@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Rahul's Birthday Manifestation Quest!!</title>
+  <title>Rahul's Birthday Manifestation Quest</title>
   <style>
     * {
       box-sizing: border-box;
@@ -500,36 +500,38 @@
       text-align: center;
     }
 
-#touch-controls {
-  margin-top: 8px;
-  display: none; /* hidden by default, shown in mobile media query */
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
+    /* Touch controls for mobile */
+    #touch-controls {
+      margin-top: 8px;
+      display: none; /* shown in media query */
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
 
-.ctrl-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  border: none;
-  background: #7c3aed;
-  color: #fff;
-  font-size: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-  cursor: pointer;
-}
+    .ctrl-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      border: none;
+      background: #7c3aed;
+      color: #fff;
+      font-size: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      cursor: pointer;
+    }
 
-.ctrl-btn:active {
-  transform: translateY(1px) scale(0.97);
-}
+    .ctrl-btn:active {
+      transform: translateY(1px) scale(0.97);
+    }
 
-.ctrl-label {
-  font-size: 12px;
-  color: #555;
-}
-    /* Mobile-friendly scaling */
-    @media (max-width: 900px) {
+    .ctrl-label {
+      font-size: 12px;
+      color: #555;
+    }
+
+    /* Mobile-friendly scaling & touch controls visibility */
+    @media (max-width: 1200px) {
       body {
         align-items: flex-start;
         justify-content: flex-start;
@@ -542,9 +544,10 @@
       #instructions {
         font-size: 11px;
       }
-       #touch-controls {
-    display: flex;
-  }
+
+      #touch-controls {
+        display: flex;
+      }
     }
   </style>
 </head>
@@ -565,7 +568,7 @@
         </div>
       </div>
 
-      <div id="music-hint">Press an arrow key to start the journey (and the music) 🎵</div>
+      <div id="music-hint">Press an arrow key (or tap ◀ ▶) to start the journey 🎵</div>
 
       <div id="dialog">
         <div id="dialog-title">Krishna to Rahul</div>
@@ -588,7 +591,7 @@
             You deserve every quiet miracle, every loud joy, and every gentle, loving thing that finds you.
           </p>
           <div id="from-vignesh">Love, Vignesh 💗</div>
-          <button id="popup-close">Okay, lets meet Krishna!✨</button>
+          <button id="popup-close">Let’s meet baby Krishna ✨</button>
         </div>
       </div>
 
@@ -656,8 +659,9 @@
   </div>
 
   <div id="instructions">
-    Use ◀ ▶ arrow keys to move · Follow the path · Collect the blessings · Then visit Krishna !!💛
+    On laptop: use ◀ ▶ arrow keys · On phone: tap the buttons below · Collect the blessings · Then visit Krishna 💛
   </div>
+
   <div id="touch-controls">
     <button class="ctrl-btn" data-dir="left">◀</button>
     <span class="ctrl-label">Tap to move</span>
@@ -901,12 +905,23 @@
       bgMusic.play().catch(() => {});
     }
 
+    // Keyboard controls
     window.addEventListener("keydown", (e) => {
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         startMusicOnce();
         if (e.key === "ArrowLeft") movePlayer("left");
         else if (e.key === "ArrowRight") movePlayer("right");
       }
+    });
+
+    // Touch controls
+    const ctrlButtons = document.querySelectorAll(".ctrl-btn");
+    ctrlButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const dir = btn.dataset.dir; // "left" or "right"
+        startMusicOnce();
+        movePlayer(dir);
+      });
     });
 
     if (popupClose) {
@@ -924,17 +939,6 @@
         birthdayPopupPending = false;
       }
     });
-
-    const ctrlButtons = document.querySelectorAll(".ctrl-btn");
-
-ctrlButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const dir = btn.dataset.dir; // "left" or "right"
-    startMusicOnce();
-    movePlayer(dir);
-  });
-});
-
 
     updateCounter();
   </script>
