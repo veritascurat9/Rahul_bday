@@ -539,32 +539,42 @@
     /* Mobile-friendly scaling & touch controls visibility */
   @media (max-width: 1200px) {
   body {
-    align-items: flex-start;
     justify-content: flex-start;
+    align-items: center;
   }
 
   #game-shell {
     width: 100%;
     display: flex;
     justify-content: center;
+    overflow: visible;
   }
 
+  /* Use BOTH width and height to decide the scale, so portrait mode isn't tiny */
   #game-wrapper {
-    transform: scale(calc(100vw / 1100));
+    /* 1100x720 is our design size */
     transform-origin: top center;
-    margin-bottom: 40px;
+    transform: scale(
+      min(
+        calc(100vw / 1100),
+        calc((100vh - 180px) / 720)
+      )
+    );
+    margin-top: 8px;
+    margin-bottom: 32px;
   }
 
   #instructions {
     font-size: 11px;
-    margin-top: 8px;
+    margin-top: 4px;
   }
 
   #touch-controls {
     display: flex;
-    margin-top: 14px;
+    margin-top: 10px;
   }
 }
+
 
   </style>
 </head>
