@@ -34,7 +34,7 @@
 
     #game-wrapper {
       width: 1100px;
-      height: 650px;
+      height: 720px;
       background: linear-gradient(to top, #d6f5ff 0%, #ffffff 45%, #fef3ff 100%);
       border-radius: 24px;
       box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
@@ -536,24 +536,35 @@
     }
 
     /* Mobile-friendly scaling & touch controls visibility */
-    @media (max-width: 1200px) {
-      body {
-        align-items: flex-start;
-        justify-content: flex-start;
-      }
+  @media (max-width: 1200px) {
+  body {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
 
-      #game-wrapper {
-        transform: scale(calc(100vw / 1100));
-      }
+  #game-shell {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
 
-      #instructions {
-        font-size: 11px;
-      }
+  #game-wrapper {
+    transform: scale(calc(100vw / 1100));
+    transform-origin: top center;
+    margin-bottom: 40px;
+  }
 
-      #touch-controls {
-        display: flex;
-      }
-    }
+  #instructions {
+    font-size: 11px;
+    margin-top: 8px;
+  }
+
+  #touch-controls {
+    display: flex;
+    margin-top: 14px;
+  }
+}
+
   </style>
 </head>
 <body>
