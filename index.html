@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rahul's Birthday Manifestation Quest</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #ffe9f7, #f3f4ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #222;
+    }
+
+    #game-wrapper {
+      width: 900px;
+      height: 520px;
+      background: linear-gradient(to top, #d6f5ff 0%, #ffffff 45%, #fef3ff 100%);
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+      position: relative;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+    }
+
+    #hud {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    #title {
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #5a3bff;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    #subtitle {
+      font-size: 12px;
+      color: #444;
+      opacity: 0.9;
+    }
+
+    #counter {
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #counter span.icon {
+      font-size: 18px;
+    }
+
+    #instructions {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #444;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+      z-index: 8;
+    }
+
+    #game-area {
+      position: absolute;
+      inset: 48px 16px 32px 16px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(to top, #c9f3d3 0%, #fff7f4 55%, #fde6f4 100%);
+    }
+
+    #ground {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 140px;
+      background: linear-gradient(to top, #7bcf87, #bdf5c5);
+      box-shadow: 0 -8px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .cloud {
+      position: absolute;
+      width: 120px;
+      height: 60px;
+      background: #fff;
+      border-radius: 999px;
+      box-shadow:
+        30px 10px 0 0 #fff,
+        60px 0 0 0 #fff;
+      opacity: 0.9;
+    }
+
+    .cloud.c1 { top: 12%; left: 10%; transform: scale(0.8); }
+    .cloud.c2 { top: 6%; left: 50%; transform: scale(1); }
+    .cloud.c3 { top: 18%; left: 75%; transform: scale(0.7); }
+
+    /* Cherry blossom petals */
+    .petal {
+      position: absolute;
+      width: 12px;
+      height: 18px;
+      background: radial-gradient(circle at 30% 30%, #ffeef5, #f59ac7);
+      border-radius: 999px;
+      opacity: 0.8;
+      pointer-events: none;
+      animation: fall 8s linear infinite;
+    }
+
+    .petal::after {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      top: 3px;
+      left: 2px;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-60px) translateX(0) rotate(0deg);
+      }
+      50% {
+        transform: translateY(220px) translateX(-20px) rotate(40deg);
+      }
+      100% {
+        transform: translateY(430px) translateX(10px) rotate(90deg);
+      }
+    }
+
+    .petal.p1 { left: 10%; animation-duration: 9s; animation-delay: 0s; }
+    .petal.p2 { left: 25%; animation-duration: 7s; animation-delay: 1s; }
+    .petal.p3 { left: 40%; animation-duration: 8.5s; animation-delay: 0.5s; }
+    .petal.p4 { left: 55%; animation-duration: 9.5s; animation-delay: 1.5s; }
+    .petal.p5 { left: 70%; animation-duration: 7.8s; animation-delay: 0.2s; }
+    .petal.p6 { left: 82%; animation-duration: 10s; animation-delay: 2s; }
+
+    /* Winding path tiles (visual only) */
+    .path-tile {
+      position: absolute;
+      width: 90px;
+      height: 18px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top, #fdf2d0, #e2b889);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      opacity: 0.9;
+    }
+    .path-1 { left: 90px;  bottom: 135px; }
+    .path-2 { left: 200px; bottom: 155px; }
+    .path-3 { left: 315px; bottom: 140px; }
+    .path-4 { left: 430px; bottom: 160px; }
+    .path-5 { left: 550px; bottom: 145px; }
+    .path-6 { left: 670px; bottom: 155px; }
+
+    /* RAHUL: single chibi PNG, side-facing */
+    #player {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      bottom: 150px;
+      left: 80px;
+      transform-origin: center bottom;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-image: url("assets/rahul-chibi.png");
+    }
+
+    .jump {
+      animation: jump 0.5s ease-out;
+    }
+
+    @keyframes jump {
+      0%   { transform: translateY(0) scale(1); }
+      40%  { transform: translateY(-40px) scale(1.02); }
+      70%  { transform: translateY(-10px) scale(1); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    .dance {
+      animation: dance 0.8s ease-in-out;
+    }
+
+    @keyframes dance {
+      0%   { transform: translateY(0) rotate(0deg) scale(1); }
+      20%  { transform: translateY(-8px) rotate(-4deg) scale(1.02); }
+      40%  { transform: translateY(0) rotate(4deg) scale(1.02); }
+      60%  { transform: translateY(-6px) rotate(-3deg) scale(1.02); }
+      80%  { transform: translateY(0) rotate(3deg) scale(1.01); }
+      100% { transform: translateY(0) rotate(0deg) scale(1); }
+    }
+
+    .milestone {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border-radius: 22px;
+      background: radial-gradient(circle at top, #ffe9c9, #ffc072);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #5a3200;
+      padding: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .milestone::after {
+      content: "★";
+      position: absolute;
+      top: -14px;
+      font-size: 16px;
+      text-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
+    }
+
+    /* Baby Krishna + glow */
+    #krishna-area {
+      position: absolute;
+      width: 140px;
+      height: 180px;
+      bottom: 140px;
+      left: 120px;            /* starts near the beginning */
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: none;
+      transition: left 1.2s ease-in-out;  /* smooth "fly" */
+    }
+
+    #krishna-area.glow-on::before {
+      content: "";
+      position: absolute;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 185, 230, 0.9), rgba(255, 185, 230, 0));
+      bottom: 10px;
+      right: 0;
+      z-index: -1;
+    }
+
+    #krishna-sprite {
+      width: 110px;
+      height: 110px;
+      background-image: url("assets/krishna-chibi.png");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      animation: bob 1.8s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    /* Krishna speech bubble */
+    #dialog {
+      position: absolute;
+      left: 50%;
+      top: 10%;
+      transform: translateX(-50%);
+      min-width: 360px;
+      max-width: 520px;
+      padding: 18px 22px;
+      border-radius: 22px;
+      background: #ffffffee;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+      display: none;
+      z-index: 20;
+      border: 2px solid #f7dfff;
+      font-size: 14px;
+    }
+
+    /* Bubble tail */
+    #dialog::after {
+      content: "";
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 30px;
+      height: 30px;
+      background: #ffffffee;
+      border-left: 2px solid #f7dfff;
+      border-bottom: 2px solid #f7dfff;
+      border-bottom-left-radius: 6px;
+    }
+
+    #dialog-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: #7c3aed;
+      margin-bottom: 6px;
+    }
+
+    #dialog-text {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #333;
+      margin-bottom: 8px;
+      min-height: 40px;
+    }
+
+    #dialog-small {
+      font-size: 11px;
+      color: #777;
+      text-align: right;
+    }
+
+    #toast {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #f9fafb;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      z-index: 15;
+      white-space: nowrap;
+    }
+
+    .toast-show {
+      display: inline-block;
+      animation: toast-pop 4.5s ease-out forwards;
+    }
+
+    @keyframes toast-pop {
+      0%   { opacity: 0; transform: translate(-50%, 20px); }
+      15%  { opacity: 1; transform: translate(-50%, 0); }
+      70%  { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, 20px); }
+    }
+
+    #music-hint {
+      position: absolute;
+      bottom: 32px;
+      right: 24px;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      color: #555;
+      z-index: 9;
+    }
+
+    /* Birthday popup + fireworks */
+    #birthday-popup {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+    }
+
+    #birthday-popup.visible {
+      display: flex;
+    }
+
+    #birthday-card {
+      position: relative;
+      background: radial-gradient(circle at top, #fdf2ff, #ffe5f2);
+      border-radius: 24px;
+      padding: 28px 36px 32px 36px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      text-align: center;
+      overflow: hidden;
+      min-width: 420px;
+    }
+
+    #birthday-card h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #7c2dd0;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    #birthday-card p {
+      font-size: 14px;
+      color: #4b5563;
+      margin-bottom: 10px;
+    }
+
+    #from-vignesh {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 18px;
+      font-style: italic;
+    }
+
+    #popup-close {
+      margin-top: 4px;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #7c2dd0;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    #popup-close:hover {
+      filter: brightness(1.05);
+    }
+
+    .firework {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: transparent;
+      box-shadow:
+        0 -12px 0 0 #fb7185,
+        0 12px 0 0 #60a5fa,
+        12px 0 0 0 #facc15,
+        -12px 0 0 0 #a855f7,
+        8px 8px 0 0 #34d399,
+        -8px 8px 0 0 #f97316,
+        8px -8px 0 0 #22d3ee,
+        -8px -8px 0 0 #f9a8d4;
+      animation: explode 1.4s ease-out infinite;
+      opacity: 0;
+    }
+
+    .firework.f1 { top: 30%; left: 20%; animation-delay: 0s; }
+    .firework.f2 { top: 20%; left: 70%; animation-delay: 0.3s; }
+    .firework.f3 { top: 65%; left: 30%; animation-delay: 0.6s; }
+    .firework.f4 { top: 60%; left: 80%; animation-delay: 0.9s; }
+
+    @keyframes explode {
+      0% {
+        transform: scale(0.2);
+        opacity: 0;
+      }
+      30% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      80% {
+        transform: scale(1.1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1.2);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Soft background music -->
+  <audio id="bg-music" src="assets/bg-music.mp3" loop></audio>
+
+  <div id="game-wrapper">
+    <div id="hud">
+      <div>
+        <div id="title">Rahul's Birthday Manifestation Quest</div>
+        <div id="subtitle">Help Rahul walk through his year, collect blessings and chat with Krishna.</div>
+      </div>
+      <div id="counter">
+        <span class="icon">✨</span>
+        <span id="counter-text">Milestones: 0 / 4</span>
+      </div>
+    </div>
+
+    <div id="instructions">
+      Use ◀ ▶ arrow keys · Walk along the glowing path to collect blessings · Then go stand with Krishna 💜
+    </div>
+
+    <div id="music-hint">Press an arrow key to start the journey (and the music) 🎵</div>
+
+    <div id="dialog">
+      <div id="dialog-title">Krishna to Rahul</div>
+      <div id="dialog-text"></div>
+      <div id="dialog-small">Walk away to close this message.</div>
+    </div>
+
+    <div id="toast"></div>
+
+    <!-- Birthday popup overlay -->
+    <div id="birthday-popup">
+      <div id="birthday-card">
+        <div class="firework f1"></div>
+        <div class="firework f2"></div>
+        <div class="firework f3"></div>
+        <div class="firework f4"></div>
+        <h1>Happy Birthday, Rahul! 🎉</h1>
+        <p>
+          I hope this year feels softer, kinder and more “you” than any year before.<br/>
+          You deserve every quiet miracle, every loud joy, and every gentle, loving thing that finds you.
+        </p>
+        <div id="from-vignesh">Love, Vignesh 💗</div>
+        <button id="popup-close">Let's meet baby Krishna! ✨</button>
+      </div>
+    </div>
+
+    <div id="game-area">
+      <div class="cloud c1"></div>
+      <div class="cloud c2"></div>
+      <div class="cloud c3"></div>
+
+      <!-- Falling petals -->
+      <div class="petal p1"></div>
+      <div class="petal p2"></div>
+      <div class="petal p3"></div>
+      <div class="petal p4"></div>
+      <div class="petal p5"></div>
+      <div class="petal p6"></div>
+
+      <div id="ground"></div>
+
+      <!-- Winding path -->
+      <div class="path-tile path-1"></div>
+      <div class="path-tile path-2"></div>
+      <div class="path-tile path-3"></div>
+      <div class="path-tile path-4"></div>
+      <div class="path-tile path-5"></div>
+      <div class="path-tile path-6"></div>
+
+      <!-- Rahul -->
+      <div id="player"></div>
+
+      <!-- Milestones (staggered along the path) -->
+     <!-- Milestones (corrected positions) -->
+<div class="milestone"
+     data-id="0"
+     data-message="Rahul just collected: Quiet confidence. This year you walk like you deserve to be in every room you enter. 💫"
+     style="left: 260px; bottom: 210px;">
+  Quiet confidence
+</div>
+
+<div class="milestone"
+     data-id="1"
+     data-message="Rahul just collected: Soft heart, strong boundaries. You stay gentle, but you stop shrinking for anyone. 🌸"
+     style="left: 380px; bottom: 165px;">
+  Heart &amp; boundaries
+</div>
+
+<div class="milestone"
+     data-id="2"
+     data-message="Rahul just collected: Abundance mode. Money, opportunities and support start flowing to you with ease. 💸"
+     style="left: 520px; bottom: 215px;">
+  Abundance mode
+</div>
+
+<div class="milestone"
+     data-id="3"
+     data-message="Rahul just collected: Soul people. The right humans find you, see you and stay. 🤍"
+     style="left: 650px; bottom: 170px;">
+  Soul people
+</div>
+
+
+      <!-- Krishna (starts near beginning, then flies to end) -->
+      <div id="krishna-area">
+        <div id="krishna-sprite"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const player = document.getElementById("player");
+    const milestones = Array.from(document.querySelectorAll(".milestone"));
+    const counterText = document.getElementById("counter-text");
+    const toast = document.getElementById("toast");
+    const dialog = document.getElementById("dialog");
+    const dialogText = document.getElementById("dialog-text");
+    const krishnaArea = document.getElementById("krishna-area");
+    const gameArea = document.getElementById("game-area");
+    const bgMusic = document.getElementById("bg-music");
+    const musicHint = document.getElementById("music-hint");
+    const birthdayPopup = document.getElementById("birthday-popup");
+    const popupClose = document.getElementById("popup-close");
+
+    const totalMilestones = milestones.length;
+    let collected = 0;
+    const speed = 14;
+    let talkingToKrishna = false;
+    let musicStarted = false;
+    let birthdayShown = false;
+    let hasWelcomed = false;
+    let krishnaAtEnd = false;
+    let typingTimeoutId = null;
+
+    function updateCounter() {
+      counterText.textContent = `Milestones: ${collected} / ${totalMilestones}`;
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.remove("toast-show");
+      void toast.offsetWidth;
+      toast.classList.add("toast-show");
+      setTimeout(() => {
+        toast.classList.remove("toast-show");
+        toast.style.display = "none";
+      }, 5000); // stays longer
+      toast.style.display = "inline-block";
+    }
+
+    function jumpAndDance() {
+      player.classList.remove("jump");
+      player.classList.remove("dance");
+      void player.offsetWidth;
+      player.classList.add("jump");
+      player.classList.add("dance");
+      setTimeout(() => {
+        player.classList.remove("dance");
+      }, 900);
+    }
+
+    function rect(el) {
+      return el.getBoundingClientRect();
+    }
+
+    function isTouching(a, b, padding = 0) {
+      const ra = rect(a);
+      const rb = rect(b);
+      return !(
+        ra.right < rb.left + padding ||
+        ra.left > rb.right - padding ||
+        ra.bottom < rb.top + padding ||
+        ra.top > rb.bottom - padding
+      );
+    }
+
+    function showBirthdayPopup() {
+      if (birthdayShown) return;
+      birthdayShown = true;
+      birthdayPopup.classList.add("visible");
+    }
+
+    function checkMilestones() {
+      milestones.forEach(m => {
+        if (!m.dataset.collected && isTouching(player, m, -10)) {
+          m.dataset.collected = "true";
+          collected++;
+          updateCounter();
+          jumpAndDance();
+          showToast(m.dataset.message);
+          m.style.transition = "transform 0.5s ease, opacity 0.5s ease";
+          m.style.transform = "translateY(-20px) scale(0.8)";
+          m.style.opacity = "0";
+          setTimeout(() => m.remove(), 500);
+
+          if (collected === totalMilestones) {
+setTimeout(() => {
+    showBirthdayPopup();
+  }, 5200);          }
+        }
+      });
+    }
+
+    const welcomeMessages = [
+      "Rahul, you made it all the way here already. I’m so happy to see you. Take your time, walk the path, collect your blessings — I’ll be right here waiting for you. 💙",
+      "Come, Rahul. 2026 is going to be your year. Breathe, go at your own pace, and enjoy every small miracle on your way back to me."
+    ];
+
+    const preKrishnaMessages = [
+      "You’re doing beautifully, Rahul. There are still a few stars on your path — go claim them, they already belong to you. ✨",
+      "Keep walking, Rahul. Every step you take with that soft heart of yours is already a kind of success."
+    ];
+
+    const finalKrishnaMessages = [
+      "Rahul, your gentleness is not a weakness… it is the very energy that will pull every blessing toward you. The way you care, the way you treat people, the way your heart stays soft even after being hurt — that is what will make your journey beautiful. Your kindness is already shaping your success.",
+      "Rahul… place your hand on your heart for a moment. Feel that rhythm… that warmth… That is your mother’s heartbeat, living inside yours. Even if she is far away in India, a part of her beats in you every second. She has never left your side.",
+      "You are never walking alone, Rahul. Your mother’s pride, her love, her prayers — they surround you like a shield. And I am here too, watching over you with the same affection."
+    ];
+
+    function moveKrishnaToEnd() {
+      if (krishnaAtEnd) return;
+      krishnaAtEnd = true;
+      // Slide Krishna towards the right side
+      krishnaArea.style.left = "720px";
+    }
+
+    function typeWriter(text, element, callback) {
+      // Cancel any previous typing animation
+      if (typingTimeoutId) {
+        clearTimeout(typingTimeoutId);
+        typingTimeoutId = null;
+      }
+
+      element.textContent = "";
+      let i = 0;
+      const speed = 25;
+
+      function type() {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          typingTimeoutId = setTimeout(type, speed);
+        } else {
+          typingTimeoutId = null;
+          if (callback) callback();
+        }
+      }
+
+      type();
+    }
+
+    function openKrishnaDialog(phase) {
+      if (talkingToKrishna) return;
+      talkingToKrishna = true;
+
+      let pool;
+      if (phase === "welcome") {
+        pool = welcomeMessages;
+        hasWelcomed = true;
+      } else {
+        const allCollected = collected === totalMilestones;
+        pool = allCollected ? finalKrishnaMessages : preKrishnaMessages;
+      }
+
+      const msg = pool[Math.floor(Math.random() * pool.length)];
+      dialog.style.display = "block";
+      typeWriter(msg, dialogText, () => {
+        // After welcome finishes typing, Krishna flies to the end
+        if (phase === "welcome") {
+          moveKrishnaToEnd();
+        }
+      });
+    }
+
+    function closeKrishnaDialog() {
+      if (!talkingToKrishna) return;
+      talkingToKrishna = false;
+
+      // Stop any ongoing typing
+      if (typingTimeoutId) {
+        clearTimeout(typingTimeoutId);
+        typingTimeoutId = null;
+      }
+
+      dialog.style.display = "none";
+      dialogText.textContent = "";
+    }
+
+    function checkKrishnaInteraction() {
+      if (isTouching(player, krishnaArea, -10)) {
+        krishnaArea.classList.add("glow-on");
+
+        let phase;
+        if (!hasWelcomed) {
+          phase = "welcome";
+        } else {
+          const allCollected = collected === totalMilestones;
+          phase = allCollected ? "final" : "pre";
+        }
+
+        openKrishnaDialog(phase);
+      } else {
+        krishnaArea.classList.remove("glow-on");
+        closeKrishnaDialog();
+      }
+    }
+
+    function movePlayer(dir) {
+      const gameRect = gameArea.getBoundingClientRect();
+      const playerRect = player.getBoundingClientRect();
+      const minX = gameRect.left + 10;
+      const maxX = gameRect.right - playerRect.width - 10;
+
+      let newX = playerRect.left + (dir === "left" ? -speed : speed);
+      newX = Math.max(minX, Math.min(maxX, newX));
+
+      const offset = newX - gameRect.left;
+      player.style.left = offset + "px";
+
+      // Flip Rahul to face direction of movement
+      player.style.transform = dir === "left" ? "scaleX(-1)" : "scaleX(1)";
+
+      checkMilestones();
+      checkKrishnaInteraction();
+    }
+
+    function startMusicOnce() {
+      if (musicStarted) return;
+      musicStarted = true;
+      if (musicHint) musicHint.style.display = "none";
+      if (!bgMusic) return;
+      bgMusic.volume = 0.35;
+      bgMusic.play().catch(() => {});
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        startMusicOnce();
+        if (e.key === "ArrowLeft") movePlayer("left");
+        else if (e.key === "ArrowRight") movePlayer("right");
+      }
+    });
+
+    if (popupClose) {
+      popupClose.addEventListener("click", () => {
+        birthdayPopup.classList.remove("visible");
+      });
+    }
+
+    birthdayPopup.addEventListener("click", (e) => {
+      if (e.target === birthdayPopup) {
+        birthdayPopup.classList.remove("visible");
+      }
+    });
+
+    updateCounter();
+  </script>
+</body>
+</html>
